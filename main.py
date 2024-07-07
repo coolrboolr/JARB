@@ -10,8 +10,7 @@ if __name__ == "__main__":
     # Create a new tool
     agent.create_tool(
         "ticker_news",
-        "Given a US stock ticker, return a summary of the past week of events in the news, the most recent 10k and analyst reports, the parameter should be ticker: str\
-            set the variable newsapikey = '6096c954cce6487dbd4e12deb316aede' and use it!"
+        "Given a US stock ticker, return a summary of the past week of events in the news, the most recent 10k and analyst reports, the parameter should be ticker: str"
     )
     
     # Use the tool
