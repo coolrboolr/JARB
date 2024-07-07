@@ -9,14 +9,15 @@ if __name__ == "__main__":
     
     # Create a new tool
     agent.create_tool(
-        "subtract_numbers",
-        "Create a function that subtracts 2 numbers"
+        "ticker_news",
+        "Given a US stock ticker, return a summary of the past week of events in the news, the most recent 10k and analyst reports, the parameter should be ticker: str\
+            set the variable newsapikey = '6096c954cce6487dbd4e12deb316aede' and use it!"
     )
     
     # Use the tool
-    result = agent.use_tool("subtract_numbers", num1=3, num2=5)
+    result = agent.use_tool("ticker_news", ticker='AAPL')
     if result is not None:
-        print(f"Result of subtract_numbers: {result}")
+        print(f"Result of ticker search: {result}")
 
     # List all tools
     print("Available tools:", agent.tool_library.list_tools())

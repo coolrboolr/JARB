@@ -1,4 +1,4 @@
-import os
+import os, sys
 import json
 import subprocess
 from datetime import datetime
@@ -58,7 +58,6 @@ class ToolGenerator:
             with open(tool_file, 'r') as f:
                 self.code = f.read()
 
-
     def save_tool_code(self, tool_name: str) -> None:
         tool_file = os.path.join(self.tool_dir, f"{tool_name}.py")
         with open(tool_file, 'w') as f:
@@ -78,9 +77,30 @@ class ToolGenerator:
 
         return self.design
 
+    def install_dependencies(self) -> None:
+        # Extract import statements from the code
+        import_lines = [line for line in self.code.split('\n') if line.startswith('import ') or line.startswith('from ')]
+        for line in import_lines:
+            parts = line.split()
+            if parts[0] == 'import':
+                package_name = parts[1].split('.')[0]
+            elif parts[0] == 'from':
+                package_name = parts[1].split('.')[0]
+            self._install_package(package_name)
+
+    def _install_package(self, package_name: str) -> None:
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package_name])
+        except subprocess.CalledProcessError:
+            print(f"Failed to install {package_name}")
+
     def generate_code(self, tool_name: str) -> str:
-        query = f"Using the following design, write the Python code to implement it:\n\n{self.design} \
-Ensure the code is concise and effective, Do not include unit test, as they will be added shortly"
+        query = ("Using the following design, write the Python code to implement it:\n\n{self.design}",
+"Ensure the code is concise and effective, Do not include unit test, as they will be added shortly",
+"The assitant will respond with only the full python script.",
+"Ensure the code is concise and effective, Do not include unit tests, as they will be added shortly",""
+"Comments may be provided within the script but should be formatted accordingly as the response will be run as is.",
+"do not include any pip installations, these will be handled as long as they are imported")
 
         iteration = 1
         max_iterations = 10  # Limit the number of iterations to prevent infinite loops
@@ -91,6 +111,9 @@ Ensure the code is concise and effective, Do not include unit test, as they will
             self.code = code[code.find("```python")+9:code.rfind("```")]
             self.log_interaction(tool_name, f"code_generation_{iteration}", query, code)
             self.save_tool_code(tool_name)  # Save the code on every generation
+
+            # Install dependencies before testing the code
+            self.install_dependencies()
 
             try:
                 exec(self.code)
@@ -103,7 +126,8 @@ Ensure the code is concise and effective, Do not include unit test, as they will
                     f"Error: {error_message}\n\n"
                     f"The assitant will respond with only the full python script. \
 Ensure the code is concise and effective, Do not include unit test, as they will be added shortly \
-Comments may be provided within the script but should be formatted accordingly as the response will be run as is."
+Comments may be provided within the script but should be formatted accordingly as the response will be run as is.\
+do not include any pip installations, these will be handled as long as they are imported"
                 )
                 iteration += 1
                 self.log_interaction(tool_name, f"code_error_{iteration}", query, error_message)
