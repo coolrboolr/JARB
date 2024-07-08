@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node Front End</title>
+</head>
+<body>
+    <h1>Available Tools</h1>
+    <div id="tools"></div>
+
+    <h2>Create a New Tool</h2>
+    <form id="create-tool-form">
+        <input type="text" id="tool-name" placeholder="Tool Name" required>
+        <input type="text" id="tool-description" placeholder="Tool Description" required>
+        <button type="submit">Create Tool</button>
+    </form>
+
+    <script>
+        // Fetch and display available tools
+        fetch('/data')
+            .then(response => response.json())
+            .then(data => {
+                const toolsDiv = document.getElementById('tools');
+                toolsDiv.innerHTML = '<ul>' + data.tools.map(tool => `<li><a href="/tool/${tool}">${tool}</a></li>`).join('') + '</ul>';
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+
+        // Handle tool creation form submission
+        document.getElementById('create-tool-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const name = document.getElementById('tool-name').value;
+            const description = document.getElementById('tool-description').value;
+
+            fetch('/create_tool', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, description })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert('Tool created successfully!');
+                    window.location.reload();
+                } else {
+                    alert('Error creating tool: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error creating tool:', error);
+                alert('Error creating tool: ' + error.message);
+            });
+        });
+    </script>
+</body>
+</html>

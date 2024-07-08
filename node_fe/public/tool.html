@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Execute Tool</title>
+</head>
+<body>
+    <h1 id="tool-name">Tool</h1>
+    <div id="form-container"></div>
+    <div id="result"></div>
+
+    <script>
+        // Extract tool name from URL
+        const toolName = window.location.pathname.split('/').pop();
+
+        // Update tool name in the heading
+        document.getElementById('tool-name').innerText = `Execute ${toolName}`;
+
+        // Fetch tool parameters and generate the form
+        fetch(`/tool_parameters/${toolName}`)
+            .then(response => response.json())
+            .then(data => {
+                const formContainer = document.getElementById('form-container');
+                const form = document.createElement('form');
+                form.id = 'tool-form';
+
+                if (data.error) {
+                    formContainer.innerText = 'Error: ' + data.error;
+                    return;
+                }
+
+                data.parameters.forEach(param => {
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.name = param.name;
+                    input.placeholder = param.name;
+                    if (param.default) {
+                        input.value = param.default;
+                    }
+                    form.appendChild(input);
+                });
+
+                const submitButton = document.createElement('button');
+                submitButton.type = 'submit';
+                submitButton.innerText = 'Execute';
+                form.appendChild(submitButton);
+                formContainer.appendChild(form);
+
+                // Handle form submission
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    const formData = new FormData(form);
+                    const params = {};
+                    formData.forEach((value, key) => {
+                        params[key] = value;
+                    });
+
+                    fetch(`/execute_tool/${toolName}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ params })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const resultDiv = document.getElementById('result');
+                        if (data.error) {
+                            resultDiv.innerText = 'Error: ' + data.error;
+                        } else {
+                            resultDiv.innerText = JSON.stringify(data.result, null, 2);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error executing tool:', error);
+                        document.getElementById('result').innerText = 'Error executing tool: ' + error.message;
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching tool parameters:', error);
+                document.getElementById('form-container').innerText = 'Error fetching tool parameters: ' + error.message;
+            });
+    </script>
+</body>
+</html>
