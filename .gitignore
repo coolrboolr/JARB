@@ -1,0 +1,10 @@
+.pass/
+.v/
+temp_test.py
+.pyc
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+node_fe/node_modules/
+.env
