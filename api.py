@@ -10,9 +10,6 @@ app = Flask(__name__)
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 
-# Load environment variable for OpenAI API key
-os.environ['OPENAI_KEY'] = open('.pass/OPENAI_KEY','r').read().strip()
-
 # Initialize Agent
 agent = Agent("openai")
 
@@ -66,10 +63,12 @@ def tool_parameters(tool_name):
             {'name': param.name, 'default': param.default if param.default != inspect.Parameter.empty else None}
             for param in sig.parameters.values()
         ]
+        logging.debug(f"Parameters for tool {tool_name}: {parameters}")
         return jsonify({'parameters': parameters}), 200
     except Exception as e:
-        logging.error(f"Error getting tool parameters: {e}")
+        logging.error(f"Error getting tool parameters for {tool_name}: {e}")
         return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)

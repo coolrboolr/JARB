@@ -1,5 +1,5 @@
 
-def add_two_numbers(num1, num2):
+def add_numbers(num1, num2):
     """
     Adds two numbers together.
 
@@ -14,13 +14,13 @@ def add_two_numbers(num1, num2):
     TypeError: If either num1 or num2 is not a number or a numeric string.
 
     Examples:
-    >>> add_two_numbers(3, 5)
+    >>> add_numbers(3, 5)
     8
-    >>> add_two_numbers(3.2, 5)
+    >>> add_numbers(3.2, 5)
     8.2
-    >>> add_two_numbers("4", "5")
+    >>> add_numbers("4", "5")
     9.0
-    >>> add_two_numbers("4.5", 5)
+    >>> add_numbers("4.5", 5)
     9.5
     """
     
@@ -53,40 +53,40 @@ import unittest
 
 class TestAddTwoNumbers(unittest.TestCase):
     def test_integers(self):
-        self.assertEqual(add_two_numbers(1, 2), 3)
+        self.assertEqual(add_numbers(1, 2), 3)
     
     def test_floats(self):
-        self.assertAlmostEqual(add_two_numbers(1.5, 2.3), 3.8)
+        self.assertAlmostEqual(add_numbers(1.5, 2.3), 3.8)
     
     def test_mixed_types(self):
-        self.assertAlmostEqual(add_two_numbers(1, 2.5), 3.5)
+        self.assertAlmostEqual(add_numbers(1, 2.5), 3.5)
     
     def test_zero(self):
-        self.assertEqual(add_two_numbers(0, 0), 0)
-        self.assertEqual(add_two_numbers(0, 5), 5)
-        self.assertEqual(add_two_numbers(5, 0), 5)
+        self.assertEqual(add_numbers(0, 0), 0)
+        self.assertEqual(add_numbers(0, 5), 5)
+        self.assertEqual(add_numbers(5, 0), 5)
     
     def test_large_numbers(self):
-        self.assertEqual(add_two_numbers(1e10, 1e10), 2e10)
+        self.assertEqual(add_numbers(1e10, 1e10), 2e10)
     
     def test_negative_numbers(self):
-        self.assertEqual(add_two_numbers(-1, -2), -3)
-        self.assertEqual(add_two_numbers(-1.5, -2.5), -4)
+        self.assertEqual(add_numbers(-1, -2), -3)
+        self.assertEqual(add_numbers(-1.5, -2.5), -4)
     
     def test_numeric_strings(self):
-        self.assertAlmostEqual(add_two_numbers("4", "5"), 9.0)
-        self.assertAlmostEqual(add_two_numbers("4.5", "5.5"), 10.0)
-        self.assertAlmostEqual(add_two_numbers("4.5", 5.5), 10.0)
+        self.assertAlmostEqual(add_numbers("4", "5"), 9.0)
+        self.assertAlmostEqual(add_numbers("4.5", "5.5"), 10.0)
+        self.assertAlmostEqual(add_numbers("4.5", 5.5), 10.0)
     
     def test_invalid_input(self):
         with self.assertRaises(TypeError):
-            add_two_numbers("four", 5)
+            add_numbers("four", 5)
         with self.assertRaises(TypeError):
-            add_two_numbers(4, "five")
+            add_numbers(4, "five")
         with self.assertRaises(TypeError):
-            add_two_numbers(None, 5)
+            add_numbers(None, 5)
         with self.assertRaises(TypeError):
-            add_two_numbers(4, None)
+            add_numbers(4, None)
 
 if __name__ == '__main__':
     unittest.main()

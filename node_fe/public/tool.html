@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Execute Tool</title>
+    <style>
+        pre {
+            white-space: pre-wrap;       /* CSS3 */
+            white-space: -moz-pre-wrap;  /* Firefox */
+            white-space: -pre-wrap;      /* Opera <7 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* IE */
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
     <h1 id="tool-name">Tool</h1>
@@ -69,7 +82,8 @@
                         if (data.error) {
                             resultDiv.innerText = 'Error: ' + data.error;
                         } else {
-                            resultDiv.innerText = JSON.stringify(data.result, null, 2);
+                            const formattedResult = JSON.stringify(data.result, null, 2);
+                            resultDiv.innerHTML = `<pre>${formattedResult}</pre>`;
                         }
                     })
                     .catch(error => {

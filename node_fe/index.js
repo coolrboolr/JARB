@@ -60,12 +60,14 @@ app.get('/tool_parameters/:name', async (req, res) => {
     try {
         const toolName = req.params.name;
         const response = await axios.get(`http://localhost:5000/api/tool_parameters/${toolName}`);
+        console.log(`Parameters for tool ${toolName}:`, response.data);
         res.send(response.data);
     } catch (error) {
         console.error('Error fetching tool parameters:', error);
         res.status(500).send({ error: error.message });
     }
 });
+
 
 app.listen(port, () => {
     console.log(`Node.js app listening at http://localhost:${port}`);

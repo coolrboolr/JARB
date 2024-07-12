@@ -61,16 +61,11 @@ class ToolLibrary:
                 code = f.read()
             module = types.ModuleType(name)
             exec(code, module.__dict__)
-            function = None
-            for attr_name in dir(module):
-                attr = getattr(module, attr_name)
-                if callable(attr) and not attr_name.startswith("Test"):
-                    function = attr
-                    break
-            if function:
+            function = getattr(module, name, None)  # Ensure we get the specific function by name
+            if callable(function):
                 self.tools[name] = function
                 logger.info(f"Loaded tool: {name}")
             else:
-                logger.warning(f"No function found in tool: {name}")
+                logger.warning(f"No function named '{name}' found in tool: {name}")
         else:
             logger.warning(f"Could not load tool: {name}")

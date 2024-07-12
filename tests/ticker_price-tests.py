@@ -5,7 +5,7 @@ import yfinance as yf
 from pandas import DataFrame
 
 # The function to be tested
-def get_last_close_price(ticker: str):
+def ticker_price(ticker: str):
     """
     Fetch the last closing price for a specified US stock ticker symbol.
 
@@ -45,12 +45,12 @@ class TestGetLastClosePrice(unittest.TestCase):
         mock_ticker.return_value.history.return_value = mock_hist
         
         # Test a valid ticker
-        result = get_last_close_price('AAPL')
+        result = ticker_price('AAPL')
         self.assertEqual(result, 150.0)
 
     def test_invalid_ticker_format(self):
         # Test an invalid ticker format
-        result = get_last_close_price('AAPL!')
+        result = ticker_price('AAPL!')
         self.assertEqual(result, "Error: Invalid ticker symbol format.")
 
     @patch('yfinance.Ticker')
@@ -60,7 +60,7 @@ class TestGetLastClosePrice(unittest.TestCase):
         mock_ticker.return_value.history.return_value = mock_hist
         
         # Test a ticker with no data
-        result = get_last_close_price('FAKE')
+        result = ticker_price('FAKE')
         self.assertEqual(result, "Error: No data available for ticker FAKE.")
 
 if __name__ == "__main__":

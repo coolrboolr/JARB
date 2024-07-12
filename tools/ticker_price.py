@@ -1,7 +1,7 @@
 
 import yfinance as yf
 
-def get_last_close_price(ticker: str):
+def ticker_price(ticker: str):
     """
     Fetch the last closing price for a specified US stock ticker symbol.
 
@@ -33,5 +33,5 @@ def get_last_close_price(ticker: str):
 if __name__ == "__main__":
     # Replace 'AAPL' with any valid US stock ticker symbol for testing
     ticker = 'AAPL'
-    result = get_last_close_price(ticker)
+    result = ticker_price(ticker)
     print("Last closing price of {}: {}".format(ticker, result))
