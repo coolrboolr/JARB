@@ -1,6 +1,9 @@
 J UST
+
 A NOTHER
+
 R EGULAR
+
 B OT
 
 A simple agentic flow that allows you to store functions for later use. 
@@ -8,9 +11,13 @@ A simple agentic flow that allows you to store functions for later use.
 Runs as a module for testing with main.py
 
 or as a node app with:
+
 py api.py
+
   and 
+
 cd node_fe
+
 node index.js
 
 agent class can run create_tool to iterate through agentic flow
