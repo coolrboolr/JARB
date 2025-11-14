@@ -3,58 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Node Front End</title>
+    <title>JARB Tool Catalog</title>
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <h1>Available Tools</h1>
-    <div id="tools"></div>
-
-    <h2>Create a New Tool</h2>
-    <form id="create-tool-form">
-        <input type="text" id="tool-name" placeholder="Tool Name" required>
-        <input type="text" id="tool-description" placeholder="Tool Description" required>
-        <button type="submit">Create Tool</button>
-    </form>
-
-    <script>
-        // Fetch and display available tools
-        fetch('/data')
-            .then(response => response.json())
-            .then(data => {
-                const toolsDiv = document.getElementById('tools');
-                toolsDiv.innerHTML = '<ul>' + data.tools.map(tool => `<li><a href="/tool/${tool}">${tool}</a></li>`).join('') + '</ul>';
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
-
-        // Handle tool creation form submission
-        document.getElementById('create-tool-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const name = document.getElementById('tool-name').value;
-            const description = document.getElementById('tool-description').value;
-
-            fetch('/create_tool', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ name, description })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    alert('Tool created successfully!');
-                    window.location.reload();
-                } else {
-                    alert('Error creating tool: ' + data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error creating tool:', error);
-                alert('Error creating tool: ' + error.message);
-            });
-        });
-    </script>
+    <header class="app-header">
+        <div>
+            <h1>JARB Tool Catalog</h1>
+            <p>Browse available tools exposed by the Flask API and run them directly from your browser.</p>
+        </div>
+        <div class="header-meta">
+            <span class="pill" id="api-base-pill">Backend: loading…</span>
+        </div>
+    </header>
+    <main class="layout">
+        <section class="catalog-panel">
+            <div class="panel-heading">
+                <h2>Tools</h2>
+                <button id="reload-tools" class="secondary">Reload</button>
+            </div>
+            <div id="catalog-loading" class="muted">Loading tools…</div>
+            <div id="catalog-error" class="banner banner-error hidden">
+                <div>
+                    <strong>Unable to load catalog</strong>
+                    <div id="catalog-error-message" class="banner-detail"></div>
+                </div>
+                <button id="catalog-retry" class="secondary">Retry</button>
+            </div>
+            <ul id="tool-list" class="tool-list"></ul>
+        </section>
+        <section class="detail-panel">
+            <div id="detail-placeholder" class="placeholder">Select a tool to view its description and parameters.</div>
+            <div id="tool-detail" class="hidden">
+                <h2 id="tool-title"></h2>
+                <p id="tool-docstring" class="docstring"></p>
+                <p id="tool-return" class="return-annotation"></p>
+                <div id="parameters-section" class="parameters-section"></div>
+                <form id="tool-form" class="tool-form"></form>
+                <div id="result-section" class="result-section">
+                    <div id="result-banner" class="banner hidden"></div>
+                    <pre id="result-output" class="result-output hidden"></pre>
+                </div>
+                <section id="run-history" class="run-history">
+                    <div class="run-history-heading">
+                        <h3>Run History</h3>
+                        <button id="run-history-reload" class="secondary">Refresh</button>
+                    </div>
+                    <div id="run-history-loading" class="muted hidden">Loading run history…</div>
+                    <div id="run-history-error" class="banner banner-error hidden"></div>
+                    <div id="run-history-empty" class="muted hidden">No runs recorded yet.</div>
+                    <table id="run-history-table" class="run-history-table hidden">
+                        <thead>
+                            <tr>
+                                <th>Finished</th>
+                                <th>Status</th>
+                                <th>Duration</th>
+                                <th>Params</th>
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </section>
+            </div>
+        </section>
+    </main>
+    <script src="/config.js"></script>
+    <script type="module" src="/app.js"></script>
 </body>
 </html>

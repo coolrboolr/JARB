@@ -5,8 +5,9 @@ import os
 import re
 import subprocess
 import sys
+from typing import Callable, Optional
 
-from llm_api import llm_call
+from llm_api import LLMConfig, llm_call
 
 BASE_QUERY = ("The assistant will respond with only the full python script."
             "Ensure the code is concise and effective, Do not include unit tests, as they will be added shortly"
@@ -20,8 +21,8 @@ class ToolGenerator:
 
     Attributes:
     -----------
-    api_key : str
-        The API key for the LLM.
+    llm_config : LLMConfig
+        Configuration for the LLM backend.
     log_dir : str
         The directory where log files are stored.
     tool_dir : str
@@ -36,14 +37,21 @@ class ToolGenerator:
         The tests for the tool being generated.
     """
 
-    def __init__(self, api_key: str, log_dir: str = 'tool_logs', tool_dir: str = 'tools', test_dir: str = 'tests'):
+    def __init__(
+        self,
+        llm_config: LLMConfig,
+        log_dir: str = 'tool_logs',
+        tool_dir: str = 'tools',
+        test_dir: str = 'tests',
+        llm_call_func: Optional[Callable[[str, LLMConfig, Optional[str]], str]] = None,
+    ):
         """
-        Initializes the ToolGenerator with the specified directories and API key.
+        Initializes the ToolGenerator with the specified directories and LLM configuration.
 
         Parameters:
         -----------
-        api_key : str
-            The API key for the LLM.
+        llm_config : LLMConfig
+            Configuration for the LLM backend.
         log_dir : str, optional
             The directory where log files are stored (default is 'tool_logs').
         tool_dir : str, optional
@@ -51,13 +59,14 @@ class ToolGenerator:
         test_dir : str, optional
             The directory where test scripts are saved (default is 'tests').
         """
-        self.api_key = api_key
+        self.llm_config = llm_config
         self.design: str = ""
         self.code: str = ""
         self.tests: str = ""
         self.log_dir: str = log_dir
         self.tool_dir: str = tool_dir
         self.test_dir: str = test_dir
+        self.llm_call = llm_call_func or llm_call
 
         # Create directories if they do not exist
         os.makedirs(self.log_dir, exist_ok=True)
@@ -159,13 +168,13 @@ class ToolGenerator:
         if not self.design:
             query = f"Create a plan to design a python script for Description. Be clear and concise and don't worry about code yet, we're just planning \
                 Description: {tool_description}"
-            self.design = llm_call(query)
+            self.design = self.llm_call(query, self.llm_config)
             self.log_interaction(tool_name, "initial_design", query, self.design)
 
             for i in range(2):
                 query = ("Please revise and improve the design below. Think critically and summarize all findings in the response. remember no code yet"
                          f"Remember the original design is for {tool_description}")
-                self.design = llm_call(query, context=f'Design: {self.design}')
+                self.design = self.llm_call(query, self.llm_config, context=f'Design: {self.design}')
                 self.log_interaction(tool_name, f"design_revision_{i+1}", query, self.design)
 
         return self.design
@@ -281,7 +290,7 @@ class ToolGenerator:
         max_iterations = 10  # Limit the number of iterations to prevent infinite loops
 
         while iteration <= max_iterations:
-            code = llm_call(query)
+            code = self.llm_call(query, self.llm_config)
             # Remove unwanted delimiters
             self.code = code[code.find("```python") + 9:code.rfind("```")]
             self.log_interaction(tool_name, f"code_generation_{iteration}", query, code)
@@ -347,7 +356,7 @@ class ToolGenerator:
                     The assitant will respond with only the full python script. \
                         Comments may be provided within the script\
                               but should be formatted accordingly as the response will be run as is."
-        tests = llm_call(query)
+        tests = self.llm_call(query, self.llm_config)
         # Remove unwanted delimiters
         self.tests = tests[tests.find("```python")+9:tests.rfind("```")]
 

@@ -1,0 +1,26 @@
+{
+  "name": "example_math_flow",
+  "description": "Sample deterministic flow that chains add_numbers and subtract_numbers.",
+  "inputs": ["a", "b"],
+  "steps": [
+    {
+      "id": "sum",
+      "tool": "add_numbers",
+      "params": {
+        "a": "$inputs.a",
+        "b": "$inputs.b"
+      },
+      "save_as": "total"
+    },
+    {
+      "id": "difference",
+      "tool": "subtract_numbers",
+      "params": {
+        "a": "$ctx.total",
+        "b": "$inputs.b"
+      },
+      "save_as": "delta"
+    }
+  ],
+  "output": "$ctx.delta"
+}

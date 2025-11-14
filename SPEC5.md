@@ -11,6 +11,7 @@
 - Keep imports side-effect free (no Flask server start) and ensure module usage works without CLI/HTTP wrappers.
 - Add tests verifying the package API reuses shared state, writes to the expected directories, and works with injected fake generators.
 - Document the new public API in `README.md` with sample usage.
+- Keep the public interface ready to expose upcoming **flow** capabilities (deterministic tool chains) without another refactor: once the FlowLibrary lands, `jarb_core` should simply forward the new Agent helpers the same way it already does for tools.
 
 ## Scope (In / Out)
 - **In scope:** new package directory `jarb_core/`, updates to `agent.py` (exposing helper/factory), `main.py`, `api.py`, README, and tests under `tests/jarb_core/`.
@@ -27,6 +28,7 @@
   - Provide `configure(**kwargs)` that rebuilds `_agent` via the factory. Accept overrides for backend, api key, directories, and injected ToolGenerator/ToolLibrary for tests.
   - Implement `get_agent()` (private) that lazily creates `_agent` if `configure` hasn’t been called, using defaults.
   - Expose API functions delegating to the singleton: `create_tool`, `use_tool`, `list_tools`, `describe_tool`, `get_tool_callable`.
+  - Leave clear extension points (module-level stubs or thin wrappers) so that once flows are implemented, adding `create_flow`, `run_flow`, etc. only requires delegating to the Agent—no rework of the singleton plumbing.
   - Document via docstrings that the module is not thread-safe for concurrent reconfiguration.
 
 - **`main.py` & `api.py`**
@@ -52,7 +54,7 @@
 - Keep the public API synchronous and dependency-free beyond existing modules.
 - Avoid circular imports: if `jarb_core` needs the factory, place the factory helper in its own module (e.g., `agent_factory.py`) that both API/CLI and `jarb_core` import.
 - Ensure `configure` loads environment variables only when needed; allow callers to provide explicit keys for headless tests.
-- Maintain compatibility with previous specs (metadata, LLM config, HTTP envelopes).
+- Maintain compatibility with previous specs (metadata, LLM config, HTTP envelopes) **and** make sure flow-facing helpers can plug in when SPEC6 lands (e.g., by colocating tool + flow delegates, reusing the same Agent accessor, and documenting the expectation in README once flows exist).
 
 ## Tests & Verification
 1. `python -m pytest tests/jarb_core/test_public_api.py` plus previously added suites.
