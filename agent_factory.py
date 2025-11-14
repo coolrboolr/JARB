@@ -62,15 +62,16 @@ def get_shared_agent() -> Agent:
 
 def _load_api_key_for_backend(backend: str) -> str:
     env_map = {
-        "openai": "OPENAI_KEY",
-        "anthropic": "ANTHROPIC_API_KEY",
+        "openai": ["OPENAI_KEY", "OPENAI_API_KEY"],
+        "anthropic": ["ANTHROPIC_API_KEY", "ANTHROPIC_KEY"],
     }
-    env_var = env_map.get(backend, "OPENAI_KEY")
-    api_key = os.getenv(env_var)
+    candidates = env_map.get(backend, ["OPENAI_KEY"])
+    for env_var in candidates:
+        api_key = os.getenv(env_var)
+        if api_key:
+            return api_key
 
-    if not api_key:
-        raise RuntimeError(
-            f"Missing API key for backend '{backend}'. Set the {env_var} environment variable."
-        )
-
-    return api_key
+    joined = ", ".join(candidates)
+    raise RuntimeError(
+        f"Missing API key for backend '{backend}'. Set one of: {joined}."
+    )

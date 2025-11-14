@@ -28,13 +28,15 @@ Create a `.env` file (or export env vars) with the LLM backend you want to use:
 ```
 JARB_LLM_BACKEND=openai  # default
 OPENAI_KEY=sk-...
+# or export OPENAI_API_KEY for compatibility
 
 # or, for Anthropic
 JARB_LLM_BACKEND=anthropic
 ANTHROPIC_API_KEY=... 
+# (ANTHROPIC_KEY is also accepted)
 ```
 
-`agent_factory.py` loads `.env`, selects the correct key (`OPENAI_KEY` for OpenAI, `ANTHROPIC_API_KEY` for Anthropic), and instantiates the singleton Agent for both CLI and HTTP entry points.
+`agent_factory.py` loads `.env`, selects the correct key (`OPENAI_KEY`/`OPENAI_API_KEY` for OpenAI, `ANTHROPIC_API_KEY`/`ANTHROPIC_KEY` for Anthropic), and instantiates the singleton Agent for both CLI and HTTP entry points.
 
 ## Library usage (`jarb_core`)
 

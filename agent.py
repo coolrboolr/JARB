@@ -1,4 +1,5 @@
 import importlib.metadata
+import importlib.util
 import json
 import logging
 import subprocess
@@ -520,6 +521,10 @@ class DependencyManager:
 
     def install_package(self, package_name: str) -> bool:
         if package_name in self.installed_packages:
+            return True
+
+        if importlib.util.find_spec(package_name):
+            self.installed_packages.append(package_name)
             return True
 
         try:

@@ -35,22 +35,30 @@ def load_llm_config(provider: str) -> LLMConfig:
     normalized_provider = provider.strip().lower()
 
     if normalized_provider == "openai":
-        api_key = os.getenv("OPENAI_KEY")
+        api_key = _first_defined("OPENAI_KEY", "OPENAI_API_KEY")
         if not api_key:
-            raise RuntimeError("OPENAI_KEY environment variable is required for OpenAI backend.")
+            raise RuntimeError("Set OPENAI_KEY or OPENAI_API_KEY to use the OpenAI backend.")
         model = os.getenv("OPENAI_MODEL", DEFAULT_OPENAI_MODEL)
         return LLMConfig(provider="openai", api_key=api_key, model=model)
 
     if normalized_provider == "anthropic":
-        api_key = os.getenv("ANTHROPIC_API_KEY")
+        api_key = _first_defined("ANTHROPIC_API_KEY", "ANTHROPIC_KEY")
         if not api_key:
             raise RuntimeError(
-                "ANTHROPIC_API_KEY environment variable is required for Anthropic backend."
+                "Set ANTHROPIC_API_KEY or ANTHROPIC_KEY to use the Anthropic backend."
             )
         model = os.getenv("ANTHROPIC_MODEL", DEFAULT_ANTHROPIC_MODEL)
         return LLMConfig(provider="anthropic", api_key=api_key, model=model)
 
     raise ValueError(f"Unsupported LLM provider '{provider}'.")
+
+
+def _first_defined(*env_vars: str) -> Optional[str]:
+    for name in env_vars:
+        value = os.getenv(name)
+        if value:
+            return value
+    return None
 
 
 def llm_call(prompt: str, config: LLMConfig, context: Optional[str] = None) -> str:
